@@ -56,7 +56,7 @@ The main command center showing agents, status, and system overview.
 🧑‍💻 Create & Register Agent (HQ Side)
 
 Create a new agent and generate a secure registration code and API key.
-![HQ Agent Registration](screenshots/HQ_agent_registration.png)
+![HQ Agent Registration](screenshots/HQ_agent_regestration.png)
 
 
 🛰️ Agent Login / Registration
@@ -80,7 +80,7 @@ HQ can dispatch commands to connected agents and track command history.
 🤖 Agent Command & Intelligence Panel
 
 Agent receives commands, executes simulated actions, and submits intelligence.
-![Agent Command & Intelligence](screenshots/Agent_command_intelligence_dashboard.png)
+![Agent Command & Intelligence](screenshots/Agent command_intelligence_dashboard.png)
 
 
 🗂️ HQ Agent Intelligence & Info
