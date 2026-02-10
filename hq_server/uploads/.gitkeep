@@ -1,0 +1,2 @@
+# This directory stores uploaded files from agents
+# It is excluded from git to prevent committing sensitive data

@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShadowLink - Agent Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            background: #0d1117;
+            color: #c9d1d9;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            border-bottom: 2px solid #30363d;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #79c0ff;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .agent-name {
+            color: #58a6ff;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .agent-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 15px;
+        }
+        
+        .agent-status.connected {
+            background: #238636;
+            color: #ffffff;
+        }
+        
+        .agent-status.disconnected {
+            background: #da3633;
+            color: #ffffff;
+        }
+        
+        .login-panel {
+            max-width: 400px;
+            margin: 50px auto;
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 30px;
+        }
+        
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .panel {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            height: 600px;
+        }
+        
+        .panel h2 {
+            color: #58a6ff;
+            font-size: 16px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #30363d;
+            padding-bottom: 10px;
+        }
+        
+        .panel-content {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 15px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #8b949e;
+            font-size: 13px;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 8px 12px;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            color: #c9d1d9;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+        
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #58a6ff;
+            box-shadow: 0 0 10px rgba(88, 166, 255, 0.2);
+        }
+        
+        button {
+            background: #238636;
+            color: #ffffff;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            transition: all 0.3s;
+            width: 100%;
+        }
+        
+        button:hover {
+            background: #2ea043;
+        }
+        
+        button.danger {
+            background: #da3633;
+        }
+        
+        button.danger:hover {
+            background: #f85149;
+        }
+        
+        .command-item {
+            background: #0d1117;
+            border-left: 3px solid #58a6ff;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 2px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .command-item:hover {
+            background: #161b22;
+        }
+        
+        .command-item.selected {
+            background: #161b22;
+            border-left-color: #79c0ff;
+        }
+        
+        .command-type {
+            color: #58a6ff;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .command-payload {
+            color: #8b949e;
+            font-size: 12px;
+            margin-top: 5px;
+            word-break: break-word;
+        }
+        
+        .intel-item {
+            background: #0d1117;
+            border-left: 3px solid #79c0ff;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 2px;
+        }
+        
+        .intel-type {
+            color: #79c0ff;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+        
+        .intel-data {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            padding: 8px;
+            margin-top: 5px;
+            border-radius: 2px;
+            font-size: 11px;
+            max-height: 100px;
+            overflow: hidden;
+        }
+        
+        .message-log {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            padding: 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            max-height: 150px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+        }
+        
+        .message {
+            margin-bottom: 8px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #30363d;
+        }
+        
+        .message.from-hq {
+            color: #58a6ff;
+        }
+        
+        .message.from-agent {
+            color: #79c0ff;
+        }
+        
+        .message.success {
+            color: #3fb950;
+        }
+        
+        .message.error {
+            color: #f85149;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .login-title {
+            color: #58a6ff;
+            font-size: 18px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .code-input {
+            font-size: 16px !important;
+            letter-spacing: 2px;
+            text-align: center;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            margin-top: 5px;
+        }
+        
+        .status-badge.pending {
+            background: #d29922;
+            color: #ffffff;
+        }
+        
+        .status-badge.executing {
+            background: #58a6ff;
+            color: #ffffff;
+        }
+        
+        .status-badge.completed {
+            background: #3fb950;
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Login Panel -->
+        <div id="loginPanel" class="login-panel">
+            <div class="login-title">ShadowLink Agent</div>
+            <form onsubmit="login(event)">
+                <div class="form-group">
+                    <label>Registration Code</label>
+                    <input type="text" id="regCode" class="code-input" placeholder="Enter registration code" required autofocus>
+                </div>
+                <button type="submit">Connect to HQ</button>
+            </form>
+            <div id="loginError" style="color: #f85149; margin-top: 10px; text-align: center; display: none;"></div>
+        </div>
+        
+        <!-- Main Content (Hidden until logged in) -->
+        <div id="mainContent" class="hidden">
+            <header>
+                <h1>Agent Control Panel</h1>
+                <div>
+                    Agent ID: <span class="agent-name" id="displayAgentId"></span>
+                    <span class="agent-status connected" id="statusBadge">● CONNECTED</span>
+                </div>
+            </header>
+            
+            <div class="main-content">
+                <!-- Commands Panel -->
+                <div class="panel">
+                    <h2>📋 Received Commands</h2>
+                    <div class="panel-content" id="commandsList">
+                        <p style="color: #8b949e;">Waiting for commands from HQ...</p>
+                    </div>
+                    <div>
+                        <label>Command Status</label>
+                        <div class="message-log" id="commandLog">
+                            <div class="message from-agent">Connected to HQ. Polling for commands...</div>
+                        </div>
+                        <button onclick="executeSelectedCommand()">Execute Selected</button>
+                    </div>
+                </div>
+                
+                <!-- Intel Panel -->
+                <div class="panel">
+                    <h2>📊 Collected Intelligence & Files</h2>
+                    <div class="panel-content" id="intelPanel">
+                        <p style="color: #8b949e;">No intelligence collected yet</p>
+                    </div>
+                    <div>
+                        <label>Add Intelligence / Upload Files</label>
+                        <div id="dropZone" style="
+                            border: 2px dashed #30363d; 
+                            border-radius: 4px; 
+                            padding: 20px; 
+                            text-align: center; 
+                            margin-bottom: 10px; 
+                            cursor: pointer;
+                            background: #0d1117;
+                            transition: all 0.3s;
+                        " onmouseenter="this.style.borderColor='#58a6ff'; this.style.background='#161b22';" 
+                           onmouseleave="this.style.borderColor='#30363d'; this.style.background='#0d1117';">
+                            <div style="color: #8b949e; font-size: 13px;">
+                                📁 Drag & Drop files here<br>
+                                <span style="font-size: 11px; color: #6e7681;">or click to select</span>
+                            </div>
+                        </div>
+                        <input type="file" id="fileInput" style="display: none;" onchange="handleFileSelect(event)" multiple>
+                        <textarea id="intelInput" placeholder="Paste system info, network data, etc. here..." style="height: 80px; margin-bottom: 10px;"></textarea>
+                        <input type="text" id="intelType" placeholder="Type (e.g., system_info, network_info)" style="margin-bottom: 10px;">
+                        <button onclick="submitIntel()">Send to HQ</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentAgent = null;
+        let selectedCommand = null;
+        
+        function login(event) {
+            event.preventDefault();
+            const code = document.getElementById('regCode').value;
+            
+            fetch('/api/agents/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code: code })
+            })
+            .then(r => {
+                if (r.status === 401) throw new Error('Invalid code');
+                return r.json();
+            })
+            .then(data => {
+                currentAgent = data;
+                // Store in localStorage so we can verify on page reload
+                localStorage.setItem('agentSession', JSON.stringify(data));
+                document.getElementById('loginPanel').classList.add('hidden');
+                document.getElementById('mainContent').classList.remove('hidden');
+                document.getElementById('displayAgentId').textContent = data.agent_id;
+                
+                // Register with system info immediately
+                registerWithSystemInfo();
+                
+                // Start polling for commands and sending heartbeats
+                startPolling();
+                
+                addCommandLog('success', 'Successfully connected to HQ');
+            })
+            .catch(e => {
+                document.getElementById('loginError').textContent = '❌ ' + e.message;
+                document.getElementById('loginError').style.display = 'block';
+            });
+        }
+        
+        function registerWithSystemInfo() {
+            if (!currentAgent) return;
+            
+            const systemInfo = getSystemInfo();
+            
+            fetch('/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    agent_id: currentAgent.agent_id,
+                    api_key: currentAgent.api_key,
+                    system_info: systemInfo
+                })
+            })
+            .then(r => r.json())
+            .then(data => {
+                addCommandLog('success', 'Registered with HQ - System info captured');
+            })
+            .catch(e => {
+                addCommandLog('warning', 'Registration warning: ' + e.message);
+            });
+        }
+        
+        function getSystemInfo() {
+            try {
+                return {
+                    userAgent: navigator.userAgent,
+                    platform: navigator.platform,
+                    language: navigator.language,
+                    hardwareConcurrency: navigator.hardwareConcurrency || 'Unknown',
+                    deviceMemory: navigator.deviceMemory || 'Unknown',
+                    screen: {
+                        width: window.screen.width,
+                        height: window.screen.height,
+                        colorDepth: window.screen.colorDepth
+                    },
+                    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                    timestamp: new Date().toISOString()
+                };
+            } catch (e) {
+                return { error: 'Could not gather system info' };
+            }
+        }
+        
+        // Handle page close/unload - disconnect from HQ
+        window.addEventListener('beforeunload', function(e) {
+            if (currentAgent) {
+                // Send disconnect request with keepalive to ensure it completes
+                fetch('/api/agents/logout', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        agent_id: currentAgent.agent_id,
+                        api_key: currentAgent.api_key
+                    }),
+                    keepalive: true
+                }).catch(() => {}); // Ignore errors on page close
+                
+                // Clear session
+                currentAgent = null;
+                localStorage.removeItem('agentSession');
+            }
+        });
+        
+        function startPolling() {
+            // Poll for commands every 3 seconds
+            setInterval(fetchCommands, 3000);
+            
+            // Send heartbeat every 5 seconds
+            setInterval(sendHeartbeat, 5000);
+            
+            // Initial fetch
+            fetchCommands();
+        }
+        
+        function sendHeartbeat() {
+            if (!currentAgent) return;
+            
+            const systemInfo = getSystemInfo();
+            
+            fetch('/api/heartbeat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    agent_id: currentAgent.agent_id,
+                    api_key: currentAgent.api_key,
+                    system_info: systemInfo
+                })
+            })
+            .catch(() => {
+                document.getElementById('statusBadge').textContent = '● DISCONNECTED';
+                document.getElementById('statusBadge').classList.remove('connected');
+                document.getElementById('statusBadge').classList.add('disconnected');
+            });
+        }
+        
+        function fetchCommands() {
+            if (!currentAgent) return;
+            
+            fetch(`/api/commands/${currentAgent.agent_id}`, {
+                headers: { 'Authorization': `Bearer ${currentAgent.api_key}` }
+            })
+            .then(r => r.json())
+            .then(data => {
+                const commands = data.commands;
+                
+                if (commands.length === 0) {
+                    if (document.getElementById('commandsList').children.length === 0) {
+                        document.getElementById('commandsList').innerHTML = '<p style="color: #8b949e;">No pending commands</p>';
+                    }
+                    return;
+                }
+                
+                const html = commands.map(cmd => `
+                    <div class="command-item" onclick="selectCommand(this, '${cmd.command_id}')">
+                        <div class="command-type">${cmd.command_type}</div>
+                        <div class="command-payload">${JSON.stringify(cmd.payload)}</div>
+                        <span class="status-badge pending">🕐 Pending</span>
+                    </div>
+                `).join('');
+                
+                document.getElementById('commandsList').innerHTML = html;
+                addCommandLog('from-hq', `Received ${commands.length} command(s)`);
+            })
+            .catch(e => {
+                addCommandLog('error', 'Failed to fetch commands: ' + e.message);
+            });
+        }
+        
+        function selectCommand(element, commandId) {
+            document.querySelectorAll('.command-item').forEach(el => {
+                el.classList.remove('selected');
+            });
+            element.classList.add('selected');
+            selectedCommand = commandId;
+        }
+        
+        function executeSelectedCommand() {
+            if (!selectedCommand) {
+                alert('Please select a command first');
+                return;
+            }
+            
+            addCommandLog('executing', `Executing command: ${selectedCommand}`);
+            
+            // Simulate command execution
+            const result = {
+                status: 'success',
+                output: 'Command executed successfully',
+                timestamp: new Date().toISOString()
+            };
+            
+            // Send result back to HQ
+            fetch(`/api/commands/${selectedCommand}/result`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    agent_id: currentAgent.agent_id,
+                    result: result
+                })
+            })
+            .then(() => {
+                addCommandLog('success', 'Result sent to HQ');
+                selectedCommand = null;
+                fetchCommands();
+            })
+            .catch(e => {
+                addCommandLog('error', 'Failed to send result: ' + e.message);
+            });
+        }
+        
+        function submitIntel() {
+            const intelData = document.getElementById('intelInput').value;
+            const intelType = document.getElementById('intelType').value || 'unknown';
+            
+            if (!intelData.trim()) {
+                alert('Please enter intelligence data');
+                return;
+            }
+            
+            fetch('/api/intel', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    agent_id: currentAgent.agent_id,
+                    data_type: intelType,
+                    data: intelData
+                })
+            })
+            .then(r => r.json())
+            .then(data => {
+                addIntel(intelType, intelData);
+                document.getElementById('intelInput').value = '';
+                document.getElementById('intelType').value = '';
+            })
+            .catch(e => alert('Error: ' + e));
+        }
+        
+        function addIntel(type, data) {
+            const item = document.createElement('div');
+            item.className = 'intel-item';
+            item.innerHTML = `
+                <div class="intel-type">${type}</div>
+                <div class="intel-data">${data.substring(0, 200)}${data.length > 200 ? '...' : ''}</div>
+            `;
+            
+            document.getElementById('intelPanel').insertBefore(item, document.getElementById('intelPanel').firstChild);
+        }
+        
+        function addCommandLog(type, message) {
+            const log = document.getElementById('commandLog');
+            const msg = document.createElement('div');
+            msg.className = 'message ' + type;
+            msg.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            log.appendChild(msg);
+            log.scrollTop = log.scrollHeight;
+        }
+        
+        // File Upload Handling
+        const dropZone = document.getElementById('dropZone');
+        const fileInput = document.getElementById('fileInput');
+        
+        // Click to select files
+        dropZone.addEventListener('click', () => fileInput.click());
+        
+        // Drag and drop events
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = '#58a6ff';
+            dropZone.style.background = '#161b22';
+        });
+        
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.style.borderColor = '#30363d';
+            dropZone.style.background = '#0d1117';
+        });
+        
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.style.borderColor = '#30363d';
+            dropZone.style.background = '#0d1117';
+            
+            const files = e.dataTransfer.files;
+            handleFiles(files);
+        });
+        
+        function handleFileSelect(event) {
+            const files = event.target.files;
+            handleFiles(files);
+        }
+        
+        function handleFiles(files) {
+            if (!currentAgent) {
+                alert('Please login first');
+                return;
+            }
+            
+            if (files.length === 0) return;
+            
+            for (let file of files) {
+                uploadFile(file);
+            }
+        }
+        
+        function uploadFile(file) {
+            if (!currentAgent) return;
+            
+            const formData = new FormData();
+            formData.append('agent_id', currentAgent.agent_id);
+            formData.append('api_key', currentAgent.api_key);
+            formData.append('file', file);
+            
+            addCommandLog('from-agent', `Uploading file: ${file.name} (${formatFileSize(file.size)})`);
+            
+            fetch('/api/upload-file', {
+                method: 'POST',
+                body: formData
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (data.status === 'uploaded') {
+                    addCommandLog('success', `File uploaded: ${file.name}`);
+                    addFileToIntel(data.original_name, data.filename, data.size);
+                } else {
+                    addCommandLog('error', `Upload failed: ${data.error || 'Unknown error'}`);
+                }
+            })
+            .catch(e => {
+                addCommandLog('error', `Upload error: ${e.message}`);
+            });
+        }
+        
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+        
+        function addFileToIntel(originalName, filename, size) {
+            const item = document.createElement('div');
+            item.className = 'intel-item';
+            item.innerHTML = `
+                <div class="intel-type">📄 File Upload</div>
+                <div class="intel-data">
+                    Name: ${originalName}<br>
+                    Size: ${formatFileSize(size)}<br>
+                    Storage ID: <span style="font-size: 11px; color: #6e7681;">${filename}</span><br>
+                    <button class="secondary" style="width: 100%; margin-top: 8px; background: #238636; color: white;" onclick="downloadFileFromHQ('${filename}')">Download Link</button>
+                </div>
+            `;
+            document.getElementById('intelPanel').insertBefore(item, document.getElementById('intelPanel').firstChild);
+        }
+        
+        function downloadFileFromHQ(filename) {
+            if (!filename || filename === 'undefined') {
+                alert('Invalid filename');
+                return;
+            }
+            const url = `/api/download-file/${encodeURIComponent(filename)}`;
+            window.open(url, '_blank');
+        }
+    </script>
+</body>
+</html>

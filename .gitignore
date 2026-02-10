@@ -1,0 +1,109 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+pip-wheel-metadata/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Data files
+data/
+*.log
+logs/
+
+# Runtime artifacts
+uploads/**
+!uploads/.gitkeep
+hq_server/uploads/**
+!hq_server/uploads/.gitkeep
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+instance/
+
+# Python cache
+.pytest_cache/
+.mypy_cache/
+.pylint_cache/
+
+# OS
+*.tmp
+*.bak
+*.swp
+
+# Secrets (if accidentally added)
+*.key
+*.pem
+*.crt
+secrets/
+credentials/
+
+__pycache__/
+*.pyc
+.env
+uploads/
+*.db
+*.sqlite
+venv/
+.env/

