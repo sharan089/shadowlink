@@ -4,7 +4,8 @@ Settings for agent behavior
 """
 
 # HQ Server settings
-HQ_URL = "http://localhost:5000"
+HQ_URL = "http://127.0.0.1:5000"
+
 
 # Agent settings
 AGENT_ID = "agent_001"
